@@ -139,6 +139,18 @@ export function LiveDashboard() {
                 ? "Once a meeting completes in Vexa, it shows up here automatically. Speaking time = your real participation. Everything else = expensive listening."
                 : "Speaking = participating. Listening = optional. We'll show you exactly how much of the listening could have been a doc."}
             </p>
+            {meetings.length > 0 && (
+              <div className="mt-6 inline-flex items-baseline gap-2 rounded-lg border border-border bg-background/40 px-4 py-3 font-mono">
+                <span className="text-2xl font-semibold text-emerald-400">
+                  {formatMinutes(totalSpeakingMin)}
+                </span>
+                <span className="text-muted-foreground">/</span>
+                <span className="text-2xl font-semibold">{formatMinutes(totalDurationMin)}</span>
+                <span className="ml-2 text-xs uppercase tracking-wider text-muted-foreground">
+                  speaking / total
+                </span>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -209,15 +221,17 @@ export function LiveDashboard() {
             <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <MetricCard
                 icon={<Clock className="h-4 w-4" />}
-                label="Total meeting time"
-                value={formatMinutes(totalDurationMin)}
-                sub={`${meetings.length} meetings`}
+                label="Speaking ratio"
+                value={`${formatMinutes(totalSpeakingMin)} / ${formatMinutes(totalDurationMin)}`}
+                sub={`${speakingPct}% spoken across ${meetings.length} meetings`}
+                tone={speakingPct >= 30 ? "good" : speakingPct >= 10 ? "neutral" : "bad"}
+                small
               />
               <MetricCard
                 icon={<Mic className="h-4 w-4" />}
                 label="You spoke"
                 value={formatMinutes(totalSpeakingMin)}
-                sub={`${speakingPct}% of total`}
+                sub={`${speakingPct}% of total time`}
                 tone="good"
               />
               <MetricCard
@@ -248,8 +262,7 @@ export function LiveDashboard() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Meeting</TableHead>
-                      <TableHead className="text-right">Total</TableHead>
-                      <TableHead className="text-right">You spoke</TableHead>
+                      <TableHead className="text-right">Speaking / Total</TableHead>
                       <TableHead className="text-right">% spoken</TableHead>
                       <TableHead className="text-right">Wasted</TableHead>
                       <TableHead className="text-right">Cost</TableHead>
@@ -275,10 +288,11 @@ export function LiveDashboard() {
                           </div>
                         </TableCell>
                         <TableCell className="text-right font-mono text-xs">
-                          {formatMinutes(m.totalMin)}
-                        </TableCell>
-                        <TableCell className="text-right font-mono text-xs text-emerald-400">
-                          {formatMinutes(m.userSpeakingSec / 60)}
+                          <span className="text-emerald-400">
+                            {formatMinutes(m.userSpeakingSec / 60)}
+                          </span>
+                          <span className="text-muted-foreground"> / </span>
+                          <span>{formatMinutes(m.totalMin)}</span>
                         </TableCell>
                         <TableCell className="text-right">
                           <Badge
@@ -366,12 +380,14 @@ function MetricCard({
   value,
   sub,
   tone = "neutral",
+  small = false,
 }: {
   icon: React.ReactNode;
   label: string;
   value: string;
   sub: string;
   tone?: "good" | "bad" | "neutral";
+  small?: boolean;
 }) {
   const valueColor =
     tone === "bad" ? "text-orange-400" : tone === "good" ? "text-emerald-400" : "text-foreground";
@@ -382,7 +398,13 @@ function MetricCard({
           <span className="uppercase tracking-wider">{label}</span>
           <span>{icon}</span>
         </div>
-        <div className={`mt-2 font-mono text-3xl font-bold ${valueColor}`}>{value}</div>
+        <div
+          className={`mt-2 font-mono font-bold ${valueColor} ${
+            small ? "text-xl sm:text-2xl" : "text-3xl"
+          }`}
+        >
+          {value}
+        </div>
         <div className="mt-1 text-xs text-muted-foreground">{sub}</div>
       </CardContent>
     </Card>

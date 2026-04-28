@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { addEvent, normalizeMeetingPayload } from "@/lib/webhook-store";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -20,14 +21,43 @@ export async function POST(req: NextRequest) {
       payload = body;
     }
 
-    console.log("[webhook] received", {
-      ts: new Date().toISOString(),
-      signature,
-      contentType: req.headers.get("content-type"),
-      payload,
+    const obj = (payload && typeof payload === "object" ? payload : {}) as Record<
+      string,
+      unknown
+    >;
+    const eventType =
+      (obj.event_type as string) ||
+      (obj.type as string) ||
+      (obj.event as string) ||
+      "unknown";
+
+    let meeting = null;
+    if (
+      eventType === "meeting.completed" ||
+      eventType === "meeting.ended" ||
+      eventType === "transcription.completed"
+    ) {
+      meeting = normalizeMeetingPayload(payload);
+    }
+
+    addEvent({
+      id:
+        (obj.event_id as string) ||
+        `evt_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      receivedAt: new Date().toISOString(),
+      eventType,
+      raw: payload,
+      meeting,
     });
 
-    return NextResponse.json({ ok: true, received: true });
+    console.log("[webhook] received", {
+      ts: new Date().toISOString(),
+      eventType,
+      hasMeeting: Boolean(meeting),
+      signature,
+    });
+
+    return NextResponse.json({ ok: true, received: true, eventType });
   } catch (err) {
     console.error("[webhook] error", err);
     return NextResponse.json({ ok: false, error: "internal" }, { status: 500 });
@@ -44,5 +74,6 @@ export async function GET() {
       "bot.failed",
       "meeting.status_change",
     ],
+    inspect: "/live",
   });
 }

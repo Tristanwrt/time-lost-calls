@@ -77,8 +77,16 @@ export function LandingHero() {
             </div>
             <span className="font-semibold tracking-tight">Time Lost Calls</span>
           </div>
-          <div className="hidden text-xs text-muted-foreground sm:block">
-            Built for the Vercel Time Lost Calls contest
+          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+            <a
+              href="/live"
+              className="rounded-full border border-border px-3 py-1 hover:text-foreground hover:border-primary/50"
+            >
+              Live · Vexa webhook
+            </a>
+            <span className="hidden sm:inline">
+              Built for the Vercel Time Lost Calls contest
+            </span>
           </div>
         </div>
       </header>

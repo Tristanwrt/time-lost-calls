@@ -1,36 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Time Lost Calls
 
-## Getting Started
+> How much of your life are meetings stealing? Drop your calendar, get the brutally honest answer.
 
-First, run the development server:
+A submission for the **Vercel Time Lost Calls** contest.
+
+## What it does
+
+Upload your Google Calendar `.ics` export (or click "demo data") and get an instant audit of:
+
+- Total time spent in meetings over the last 30 days
+- How much of that time was probably wasted (heuristic engagement score)
+- The cost in real money, based on your hourly rate
+- Top recurring time wasters (standups, all-hands, status syncs)
+- Concrete escape routes (async standups, Loom recordings, declining 15+ person meetings)
+
+No login. No database. Your calendar file is parsed in memory and immediately forgotten.
+
+## Stack
+
+- Next.js 16 (App Router) + React 19
+- TypeScript, Tailwind CSS v4
+- shadcn/ui (new-york, dark mode)
+- ical.js for `.ics` parsing
+- Deployed on Vercel (Fluid Compute)
+
+## Heuristic
+
+For each meeting, an "engagement score" (0–100) is computed from:
+
+- Attendee count (1:1 → high, 20+ → very low)
+- Recurring vs one-off (recurring penalized as autopilot)
+- Duration (>90 min penalized for diminishing returns)
+- Title-based category (standup, all-hands, 1:1, deep-dive, status, external)
+
+Waste minutes = duration × (1 − engagementScore/100). Cost = waste hours × hourly rate.
+
+## Run locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Routes
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `/` — landing
+- `/dashboard` — report (reads session storage populated from landing)
+- `/api/parse-ics` — POST `multipart/form-data` with `.ics` file → JSON meetings

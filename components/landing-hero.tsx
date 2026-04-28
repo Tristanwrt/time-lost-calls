@@ -14,14 +14,16 @@ import { Upload, Sparkles, Clock, Flame, ChevronRight, Loader2 } from "lucide-re
 export function LandingHero() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [hourlyRate, setHourlyRate] = useState(60);
+  const [hourlyRateStr, setHourlyRateStr] = useState("60");
   const [currency, setCurrency] = useState<"EUR" | "USD">("EUR");
   const [loading, setLoading] = useState<"demo" | "ics" | null>(null);
+
+  const hourlyRate = Number(hourlyRateStr) || 0;
 
   function handleDemo() {
     setLoading("demo");
     const meetings = generateDemoMeetings();
-    saveSession({ meetings, hourlyRate, currency, source: "demo" });
+    saveSession({ meetings, hourlyRate: hourlyRate || 60, currency, source: "demo" });
     setTimeout(() => router.push("/dashboard"), 400);
   }
 
@@ -38,7 +40,12 @@ export function LandingHero() {
         setLoading(null);
         return;
       }
-      saveSession({ meetings: data.meetings, hourlyRate, currency, source: "ics" });
+      saveSession({
+        meetings: data.meetings,
+        hourlyRate: hourlyRate || 60,
+        currency,
+        source: "ics",
+      });
       router.push("/dashboard");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Couldn't parse that file.");
@@ -105,9 +112,22 @@ export function LandingHero() {
                 <Input
                   id="rate"
                   type="number"
-                  min={1}
-                  value={hourlyRate}
-                  onChange={(e) => setHourlyRate(Number(e.target.value) || 0)}
+                  inputMode="numeric"
+                  min={0}
+                  placeholder="60"
+                  value={hourlyRateStr}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    // accept empty string and digits only; strip leading zeros (but keep "0")
+                    if (v === "") {
+                      setHourlyRateStr("");
+                    } else if (/^\d+$/.test(v)) {
+                      setHourlyRateStr(v.replace(/^0+(?=\d)/, ""));
+                    }
+                  }}
+                  onBlur={() => {
+                    if (hourlyRateStr === "" || hourlyRateStr === "0") setHourlyRateStr("60");
+                  }}
                   className="mt-1"
                 />
               </div>

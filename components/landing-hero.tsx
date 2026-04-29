@@ -9,7 +9,17 @@ import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { generateDemoMeetings } from "@/lib/demo-data";
 import { saveSession } from "@/lib/store";
-import { Upload, Sparkles, Clock, Flame, ChevronRight, Loader2 } from "lucide-react";
+import {
+  Upload,
+  Sparkles,
+  Clock,
+  Flame,
+  ChevronRight,
+  Loader2,
+  ArrowRight,
+} from "lucide-react";
+import { PerspectiveMarquee } from "@/components/ui/perspective-marquee";
+import Link from "next/link";
 
 export function LandingHero() {
   const router = useRouter();
@@ -109,6 +119,17 @@ export function LandingHero() {
           Drop your calendar. We&apos;ll do the math you&apos;ve been avoiding. Spoiler: the
           number ends in &quot;ouch&quot;.
         </p>
+
+        <div className="mx-auto mt-8 flex flex-wrap items-center justify-center gap-3">
+          <Button asChild size="lg" className="h-12 px-8 text-base font-semibold">
+            <Link href="/onboarding">
+              Connect your calls <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
+          <Button asChild variant="outline" size="lg" className="h-12 px-8 text-base">
+            <Link href="/live">See live dashboard</Link>
+          </Button>
+        </div>
 
         <div className="mx-auto mt-10 max-w-xl">
           <Card className="border-border/60 bg-card/70 p-6 text-left backdrop-blur-md">
@@ -225,6 +246,22 @@ export function LandingHero() {
             </ol>
           </details>
         </div>
+      </section>
+
+      <section className="relative mb-12 mt-4 border-y border-border/40">
+        <div className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 text-center">
+          <div className="rounded-full border border-border/60 bg-background/70 px-4 py-1.5 text-[11px] uppercase tracking-widest text-muted-foreground backdrop-blur">
+            The hits you didn&apos;t ask for
+          </div>
+        </div>
+        <PerspectiveMarquee
+          height={300}
+          fontSize={80}
+          rotateY={-22}
+          rotateX={6}
+          speed={0.8}
+          color="oklch(0.9 0 0 / 0.85)"
+        />
       </section>
 
       <section className="mx-auto max-w-5xl px-6 pb-24">

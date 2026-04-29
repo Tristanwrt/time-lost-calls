@@ -19,6 +19,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { PerspectiveMarquee } from "@/components/ui/perspective-marquee";
+import { TrustedBySection } from "@/components/trusted-by-section";
 import Link from "next/link";
 
 export function LandingHero() {
@@ -248,7 +249,7 @@ export function LandingHero() {
         </div>
       </section>
 
-      <section className="relative mb-12 mt-4 border-y border-border/40">
+      <section className="relative mb-4 mt-4 border-y border-border/40">
         <div className="absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 text-center">
           <div className="rounded-full border border-border/60 bg-background/70 px-4 py-1.5 text-[11px] uppercase tracking-widest text-muted-foreground backdrop-blur">
             The hits you didn&apos;t ask for
@@ -263,6 +264,8 @@ export function LandingHero() {
           color="oklch(0.9 0 0 / 0.85)"
         />
       </section>
+
+      <TrustedBySection />
 
       <section className="mx-auto max-w-5xl px-6 pb-24">
         <div className="grid gap-4 sm:grid-cols-3">
